@@ -5,7 +5,8 @@ function callservicebyajax(POSTDATA,serverurl,callbackfunction){
 		url: serverurl,       
 		type: "POST",
 		data: POSTDATA, 
-		cache: false,         
+		cache: false,  
+		async: true,       
 		success: function (response) { 
 			ajaxResponse=response;
 			callbackfunction();
@@ -21,133 +22,77 @@ function getcontents(urllocator,responsearea,postdata)
 	callservicebyajax(POSTDATA,urllocator,function(){getcontentresponse(responsearea)});
 }
 
+function getmodalcontents(urllocator,postdata){
+var POSTDATA=''//"alias="+encodeURIComponent(ClientAlias);
+if(postdata)
+	POSTDATA+="postvalue="+encodeURIComponent(postdata);
+callservicebyajax(POSTDATA,urllocator,function(){getmodalcontentresponse()});
+}
+
 function getcontentresponse(responsearea){
 	$('#'+responsearea).html(ajaxResponse);
 	$('.nvtooltip').remove();
 }
 
-
-var addedsizebrief=[];
-var removesizederbrief=[];
-var sdid=0;
-function addsizebriefs(){
-	var itemsize=$("#dd_size").val();
-	var itemcolor=$("#dd_color").val();
-	var pieces=$('#pieces').val();	
-	if(itemsize && itemcolor && pieces) 
-	{
-		dummy=++sdid;
-		obj={};
-		obj.itemsize=itemsize;  
-		obj.itemcolor=itemcolor;
-		obj.pieces= $.trim(pieces); //persistent data
-		obj.trid="dummyid_"+dummy; // required to delete tr on client add
-		addedsizebrief.push(obj);
-		$('#sizebriefs tbody').append('<tr id="dummyid_'+ dummy +'" size="'+itemsize+'"><td><td>'+itemsize+'</td><td>'+itemcolor+'</td><td>'+$.trim(pieces)+'</td><td><a href="#" onclick=removesizebriefvalue("dummyid_'+dummy+'"); class="btn btn-sm btn-default-inverse"><i class="glyphicon  glyphicon-remove-sign white"></i>Delete</a></td></tr>');   			
-		$('#pieces').html('');		
-		
-	}
-	else{
-		$("#response_div").removeClass("label-success").addClass("label-danger").html("Please specify valid size");
-		setTimeout(function(){$("#response_div").html("");},4000);
-	}
-}
-/*------------------------------------------------------------------------*/
-function removesizebriefvalue(trid){
-	orderbriefid=$("#"+trid).attr("orderbriefid")
-	if(orderbriefid)
-		removeorderbrief.push(orderbriefid);
-	else{
-		Cleanunsaveditem(trid,"trid");
-	}
-	$("#"+trid).remove();
+function getmodalcontentresponse(){
+	$('#MicroModalwindow').html(ajaxResponse);	
+	$('#MicroModalwindow').attr('class', 'modal fade bs-example-modal-lg').attr('aria-labelledby','myModalLabel');
+	$('.modal-dialog').attr('class','modal-dialog  modal-lg');
+	$('#MicroModalwindow').modal('show');
 }
 
+function showmodalwindow(){
+	if(ajaxResponse){
+		var modalWindowData = JSON.parse(ajaxResponse);
+		if(modalWindowData.Header) $('#ModalWindowHeader').html(modalWindowData.Header);
+		if(modalWindowData.Body) $('#ModalWindowBody').html(modalWindowData.Body);
+		if(modalWindowData.Footer) $('#ModalWindowFooter').html(modalWindowData.Footer);
+	}
+	$('#MicroModalwindow').attr('class', 'modal fade').attr('aria-labelledby','myModalLabel');
+	$('.modal-dialog').attr('class','modal-dialog');
+	$('#MicroModalwindow').modal('show');
+}
+function closemodalwindow(){
+	$('#ModalWindowBody').html("");
+	$('#ModalWindowFooter').html("");
+	$('#ModalWindowHeader').html("");				
+	$('#MicroModalwindow').modal("hide");
+}
 
-var addedyarnrief=[];
-var removeyarnbrief=[];
-var ydid=0;
-function addyarnbriefs(){
-	var itemcolor=$("#dd_color").val();
-	var itemcount=$("#yarncount").val();
-	var kgs=$('#yarnkgs').val();	
-	if(kgs && itemcount && itemcolor) 
-	{
-		dummy=++ydid;
-		obj={};
-		obj.itemcount=itemcount;  
-		obj.itemcolor=itemcolor;
-		obj.kgs= $.trim(kgs); //persistent data
-		obj.trid="dummyid_"+dummy; // required to delete tr on client add
-		addedyarnrief.push(obj);
-		$('#yarnrbriefs tbody').append('<tr id="dummyid_'+ dummy +'" count="'+itemcount+'"><td><td>'+itemcount+'</td><td>'+itemcolor+'</td><td>'+$.trim(kgs)+'</td><td><a href="#" onclick=removeyarnbriefvalue("dummyid_'+dummy+'"); class="btn btn-sm btn-default-inverse"><i class="glyphicon  glyphicon-remove-sign white"></i>Delete</a></td></tr>');   			
-		$('#pieces').html('');		
-		
-	}
-	else{
-		$("#response_div").removeClass("label-success").addClass("label-danger").html("Please specify valid size");
-		setTimeout(function(){$("#response_div").html("");},4000);
-	}
-}
-/*------------------------------------------------------------------------*/
-function removeyarnbriefvalue(trid){
-	orderbriefid=$("#"+trid).attr("orderbriefid")
-	if(orderbriefid)
-		removeorderbrief.push(orderbriefid);
-	else{
-		Cleanunsaveditem(trid,"trid");
-	}
-	$("#"+trid).remove();
-}
-/*------------------------------------------------------------------------*/
-function Cleanunsaveditem(value,property) {
-	len = addedorderbrief.length;
-	for (var i = 0; i < len; i++){
-		if (addedorderbrief[i][property] === value) {
-			addedorderbrief.splice(i,1);
-			return
+function savedataresponse(callbackmethod){
+	var response = JSON.parse(ajaxResponse);
+	if(response){
+		if(response.Exception){
+			notifyDanger(response.Exception);
+		}
+		else{
+			notifySuccess(response.Message);
+			if(callbackmethod)
+			setTimeout(function(){callbackmethod();}, 1000);			
 		}
 	}
 }
-/*------------------------------------------------------------------------*/
-function saverole(){
-	var rolename=$('#rolename').val();
-	if(!rolename || rolename=='' || rolename.length<=1){
-		dangerAlert('Please specify rolename')	;
-	}
-	else{
 
-		var POSTDATA="action=saverole&rolename="+encodeURIComponent(rolename);
-		callservicebyajax(POSTDATA,"d2dservice/config/roleserver.php",function(){savedataresponse()});
-	}
-}
-
-
-function saveuserform()
-{
-	userDetails = $("#update-userform").serialize();
-			var POSTDATA="action=saveuser&userdetails="+encodeURIComponent(userDetails);
-		callservicebyajax(POSTDATA,"d2dservice/config/userserver.php",function(){savedataresponse()});
-}
-
-
-function savedataresponse(){
+function savemodalwindowresponse(callbackmethod){
 	var response = JSON.parse(ajaxResponse);
 	if(response){
 		if(response.Exception){
 			dangerAlert(response.Exception)	;
 		}
 		else{
-			successAlert('role created successfully!');
+			closemodalwindow();
+			callbackmethod();
 		}
 	}
+
+}
+function notifySuccess(message){
+	$.bootstrapGrowl(message,{type:'success'});                    
+}
+function notifyInfo(message){
+	$.bootstrapGrowl(message,{type: 'info'});                    
+}
+function notifyDanger(message){
+	$.bootstrapGrowl(message,{type: 'danger'});                    
 }
 
-function successAlert (message) {
-	$("#alert-area").append($("<div class='alert-message success fade in' data-alert><p> " + message + " </p></div>"));
-	$(".alert-message").delay(2000).fadeOut("slow", function () { $(this).remove(); });
-}
-function dangerAlert (message) {
-	$("#alert-area").append($("<div class='alert-message danger fade in' data-alert><p> " + message + " </p></div>"));
-	$(".alert-message").delay(2000).fadeOut("slow", function () { $(this).remove(); });
-}

@@ -2,7 +2,7 @@
   if(!isset($_SESSION)){session_start();}
   if(isset($_POST['postvalue']))
   	$userid=$_POST['postvalue'];
-  include_once($_SERVER['DOCUMENT_ROOT']."/d2dconfig.php");
+  include_once($_SERVER['DOCUMENT_ROOT']."/eventconfig.php");
   include_once(CLASSFOLDER."/enums.php");
   $typeofuser=new TypeOfUser;
   $userstatus=new UserStatus;
@@ -43,33 +43,33 @@
           <div class="col-lg-6">
             <div class="form-group margin">
               <label><span class="text-error">*</span> Login Name</label>
-              <input type="text"  id="login_name" name="login_name" value="<?php echo $userdata['login_name'];?>" maxlength="25" placeholder="Login Name" class="form-control" onBlur="chkempty(this.id,this.value)">
+              <input type="text"  id="login_name" name="login_name" value="<?php echo $userdata['login_name'];?>" maxlength="25" placeholder="Login Name" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="form-group margin">
               <label><span class="text-error">*</span> Password</label>
-              <input type="password" name="password" id="password" value="<?php echo $userdata['password'];?>" maxlength="25" placeholder="Password" class="form-control" onBlur="chkempty(this.id,this.value)">
+              <input type="password" name="password" id="password" value="<?php echo $userdata['password'];?>" maxlength="25" placeholder="Password" class="form-control" >
             </div>
           </div>
           <div class="col-lg-6 ">
             <div class="form-group  margin">
               <label ><span class="text-error">*</span> Full Name</label>
 
-              <input type="text" name="name" id="name" value="<?php echo $userdata['name'];?>" maxlength="25" placeholder="Full Name" class="form-control" onBlur="chkempty(this.id,this.value)">
+              <input type="text" name="name" id="name" value="<?php echo $userdata['name'];?>" maxlength="25" placeholder="Full Name" class="form-control" >
             </div>
           </div>
           <div class="col-lg-6">
             <div class="form-group  margin">
               <label > <span class="text-error">*</span> Email Id</label>
               <input type="hidden" id="isemailexists" name="isemailexists" value="0" />
-              <input type="text" name="email" id="email" value="<?php echo $userdata['email'];?>" placeholder="Email Id" maxlength="35" class="form-control" onBlur="checkeusermailavailability(this.value,this.id,<?php echo $userid; ?>)">
+              <input type="text" name="email" id="email" value="<?php echo $userdata['email'];?>" placeholder="Email Id" maxlength="35" class="form-control" >
             </div>
           </div>
           <div class="col-lg-6">
             <div class="form-group  margin">
               <label >Conatct Number</label>
-              <input type="text" name="phone" id="phone" value="<?php echo $userdata['phone'];?>" maxlength="14" placeholder="Conatct Number"  class="form-control" onkeypress="return numbervalidation(event);" >
+              <input type="text" name="phone" id="phone" value="<?php echo $userdata['phone'];?>" maxlength="14" placeholder="Conatct Number"  class="form-control"  >
             </div>
           </div>
           <div class="col-lg-6">
@@ -151,7 +151,56 @@
   </div>
 </form>
 
-<script src="scripts/formvalidation.js" type="text/javascript"></script>
+<script type="text/javascript">
+  
+  (function($,W,D)
+{
+    var JQUERY4U = {};
+ 
+    JQUERY4U.UTIL =
+    {
+        setupFormValidation: function()
+        {
+            //form validation rules
+            $("#update-userform").validate({
+                rules: {
+                    login_name: "required",                    
+                    name:"required",
+                    usertype:"required",
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 5
+                    }                    
+                },
+                messages: {
+                    login_name: "Please enter user loginname",
+                    name: "Please enter user name",
+                    password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be at least 5 characters long"
+                    },
+                    email: "Please enter a valid email address"
+                },
+                submitHandler: function(form) {
+                    saveuserform();
+                }
+            })
+
+        }
+    }
+ 
+    //when the dom has loaded setup form validation rules
+    $(D).ready(function($) {
+        JQUERY4U.UTIL.setupFormValidation();
+    });
+ 
+})(jQuery, window, document);
+</script>
+
 
 
 

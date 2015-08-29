@@ -41,4 +41,20 @@ if(!empty($catalogvalues)){
 }
 break;
 /*--------------------------------------------------------------*/
+case "getCatalogValuesByMasterName":
+$catalogmasterid = $_POST['catalogmasterid'];
+$catalogvalues=$catalog->getallCatalogValuesNames($catalogmasterid);
+echo '<option vlaue="">Select</option>';
+if(!empty($catalogvalues)){
+	foreach($catalogvalues as $values)
+	echo '<option value="'.$values['catalog_value_id'].'">'.$values['catalog_value_name'].'</option>';
+}
+break;
+/*--------------------------------------------------------------*/
+case "getAllCatalogValues":
+$catalogmasterName = $_POST['masterName'];
+$catalogvalues=$catalog->GetAllCatalogValues($catalogmasterName);
+print_r(json_encode($catalogvalues));
+break;
+/*--------------------------------------------------------------*/
 }
