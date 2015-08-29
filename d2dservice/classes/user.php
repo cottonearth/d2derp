@@ -33,6 +33,7 @@ function CheckAccesstoPage($useractionarray,$pageid)
 }
 function saveUser($entity){
 	$returnData=include 'user/saveuser.php';
+	return $returnData;
 
 }
 /*---------------------------------------------------------------*/

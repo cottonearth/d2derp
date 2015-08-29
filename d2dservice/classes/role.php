@@ -23,6 +23,7 @@
 		}
 		else{
 			 $response['Exception']='Specified role name already exists';
+			 $response['Severity']='high';
 			 return $response;
 			}
 	}
